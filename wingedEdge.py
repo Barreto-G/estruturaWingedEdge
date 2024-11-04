@@ -1,7 +1,6 @@
 # Implementação das classes para Vertices, Arestas, Faces e a própria estrutura Winged Edge
 # A ideia é utilizar apenas a WingedEdge, adicionando primeiro os vertices, depois as arestas e por fim as faces.
 # Após adicionar tudo, chamar a função link edges para fazer todas as ligações necessárias.
-# Caso a função de ler um arquivo seja um método estático, lembrar de chamar a função link_edges antes de retornar o objeto
 
 class Vertex:
     def __init__(self, id: int, position):
