@@ -1,6 +1,7 @@
 from wingedEdge import WingedEdge
 import operations as op
 
+
 def main_console(mesh):
     while True:
         # Exibe o menu de opções
@@ -25,7 +26,8 @@ def main_console(mesh):
             try:
                 vertex_id = int(input("Digite o ID do vértice: "))
                 edges = op.get_edges_sharing_vertex(mesh, vertex_id)
-                print(f"Arestas que compartilham o vértice {vertex_id}: {edges}")
+                print(
+                    f"Arestas que compartilham o vértice {vertex_id}: {edges}")
             except ValueError:
                 print("ID inválido! Por favor, digite um número.")
 
@@ -33,7 +35,8 @@ def main_console(mesh):
             try:
                 face_id = int(input("Digite o ID da face: "))
                 vertices = op.get_vertices_sharing_face(mesh, face_id)
-                print(f"Vértices que compartilham a face {face_id}: {vertices}")
+                print(
+                    f"Vértices que compartilham a face {face_id}: {vertices}")
             except ValueError:
                 print("ID inválido! Por favor, digite um número.")
 
@@ -44,6 +47,7 @@ def main_console(mesh):
         else:
             print("Opção inválida! Por favor, escolha uma opção de 1 a 4.")
 
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     try:
@@ -53,10 +57,13 @@ if __name__ == '__main__':
             print("\nEscolha uma das opções:")
             print("1. Fazer consultas")
             print("2. Imprimir informacoes do objeto")
+            print("3. Plotar um gráfico 3D do objeto")
+            print("4. Fechar o programa")
             choice = input("Digite o número da opção desejada: ")
 
             if choice == '1':
                 main_console(objeto)
+
             elif choice == '2':
                 vertices_info = list(objeto.vertices.values())
                 edges_info = list(objeto.edges.values())
@@ -65,6 +72,11 @@ if __name__ == '__main__':
                 print(edges_info)
                 print(faces_info)
 
+            elif choice == '3':
+                op.plot_3d_object(objeto)
+
+            elif choice == '4':
+                break
 
     except FileNotFoundError:
         print("Arquivo nao encontrado, tente novamente")

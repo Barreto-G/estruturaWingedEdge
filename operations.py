@@ -1,3 +1,7 @@
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import matplotlib.pyplot as plt
+import random
+
 from wingedEdge import WingedEdge
 
 
@@ -84,6 +88,52 @@ def read_obj(filename):
     # Configura os links entre as arestas
     mesh.link_edges()
     return mesh
+
+def plot_3d_object(winged_edge: WingedEdge):
+    '''Função para plotar o objeto 3D com faces coloridas usando matplotlib'''
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Plotando vértices
+    for vertex in winged_edge.vertices.values():
+        ax.scatter(*vertex.position, color='r', marker='o', s=20)
+    
+    # Lista com 4 tons de azul
+    colors = ['lightblue', 'skyblue', 'dodgerblue', 'royalblue']
+
+    # Plotando faces
+    for face_id, face in winged_edge.faces.items():
+        face_vertices = []
+        for edge in face.edges:
+            if edge.vertex1 not in face_vertices:
+                face_vertices.append(edge.vertex1)
+            if edge.vertex2 not in face_vertices:
+                face_vertices.append(edge.vertex2)
+
+        # Pegando as posições dos vértices para o polígono da face
+        verts = [vertex.position for vertex in face_vertices]
+        
+        poly = Poly3DCollection([verts], alpha=1, linewidths=0.5)
+        
+        # Alternar entre os tons de azul
+        poly.set_facecolor(colors[face_id % 4])
+        ax.add_collection3d(poly)
+
+    # Plotando arestas
+    for edge in winged_edge.edges.values():
+        x_values = [edge.vertex1.position[0], edge.vertex2.position[0]]
+        y_values = [edge.vertex1.position[1], edge.vertex2.position[1]]
+        z_values = [edge.vertex1.position[2], edge.vertex2.position[2]]
+        ax.plot(x_values, y_values, z_values, color='k', linewidth=5)
+
+    
+    # Ajustando rótulos de eixos
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+
+    plt.title('Objeto em 3D')
+    plt.show()
 
 if __name__ == "__main__":
     print("Este arquivo contém operações que podem ser utilizadas sobre a estrutura WingedEdge")
