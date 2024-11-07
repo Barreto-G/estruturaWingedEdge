@@ -125,9 +125,9 @@ class App(ctk.CTk):
                 self.consultation_window.display_result(
                     f"Faces que compartilham a aresta {edge_id}: {faces}")
 
-        except ValueError:
+        except ValueError or KeyError:
             self.consultation_window.display_result(
-                "ID inválido! Por favor, digite um número.")
+                "ID inválido!")
 
     def consult_edges_sharing_vertex(self):
         ''' Consulta as arestas que compartilham um vértice. '''
@@ -147,9 +147,9 @@ class App(ctk.CTk):
             else:
                 self.consultation_window.display_result(
                     f"Arestas que compartilham o vértice {vertex_id}: {edges}")
-        except ValueError:
+        except ValueError or KeyError:
             self.consultation_window.display_result(
-                "ID inválido! Por favor, digite um número.")
+                "ID inválido!")
 
     def consult_vertices_sharing_face(self):
         ''' Consulta os vértices que compartilham uma face. '''
@@ -164,9 +164,12 @@ class App(ctk.CTk):
             vertices = op.get_vertices_sharing_face(self.mesh, face_id)
             self.consultation_window.display_result(
                 f"Vértices que compartilham a face {face_id}: {vertices}")
-        except ValueError:
+        except ValueError or KeyError:
             self.consultation_window.display_result(
-                "ID inválido! Por favor, digite um número.")
+                "ID inválido!")
+        except Exception as error:
+                self.consultation_window.display_result(
+                "ID inválido!")
 
     def plot_graph(self):
         ''' Plota o objeto 3D na interface. '''
