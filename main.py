@@ -48,7 +48,7 @@ def main_console(mesh):
 if __name__ == '__main__':
     try:
         filename = input("Digite o nome do arquivo: ")
-        objeto = op.read_obj(filename, WingedEdge())
+        objeto = op.read_obj(filename)
         main_console(objeto)
     except FileNotFoundError:
         print("Arquivo nao encontrado, tente novamente")

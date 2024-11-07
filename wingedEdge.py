@@ -2,6 +2,11 @@
 # A ideia é utilizar apenas a WingedEdge, adicionando primeiro os vertices, depois as arestas e por fim as faces.
 # Após adicionar tudo, chamar a função link edges para fazer todas as ligações necessárias.
 
+# A ideia principal e que cada objeto contenha informacoes de outros objetos adjacentes a ele. Dessa forma:
+#   Vertices mantem a informacao das arestas conectadas a eles;
+#   Arestas mantem informacoes dos vertices que as definem, faces adjacentes e arestas adjacentes com relacao a cada face;
+#   Faces mantem apenas a informacao das arestas que as compoem.
+
 class Vertex:
     def __init__(self, id: int, position):
         self.id = id
@@ -40,6 +45,10 @@ class Face:
         return f"Face {self.id}"
 
 
+# A estrutura WingedEdge mantem um dicionario para cada elemento do objeto a ser representado(de forma a evitar duplicados),
+# sendo eles vertices, arestas e faces. A estrutura foi pensada de forma que adicionam-se primeiro os vertices do objeto,
+# entao as arestas e por fim as faces. Com todas as informações estabelecidas, deve-se executar a função LinkEdges para que,
+# a partir da informação das faces, sejam salvas em cada aresta as referencias de arestas vizinhas
 class WingedEdge:
     def __init__(self):
         # Armazena em estrutura de dicionário para facilitar o acesso e operacoes posteriores
