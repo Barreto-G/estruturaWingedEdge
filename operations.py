@@ -89,11 +89,7 @@ def read_obj(filename):
     mesh.link_edges()
     return mesh
 
-def plot_3d_object(winged_edge: WingedEdge):
-    '''Função para plotar o objeto 3D com faces coloridas usando matplotlib'''
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-
+def plot_3d_object(winged_edge: WingedEdge, ax: plt.Axes, colors: list):
     # Plotando vértices
     for vertex in winged_edge.vertices.values():
         ax.scatter(*vertex.position, color='r', marker='o', s=20)
@@ -125,15 +121,11 @@ def plot_3d_object(winged_edge: WingedEdge):
         y_values = [edge.vertex1.position[1], edge.vertex2.position[1]]
         z_values = [edge.vertex1.position[2], edge.vertex2.position[2]]
         ax.plot(x_values, y_values, z_values, color='k', linewidth=5)
-
     
     # Ajustando rótulos de eixos
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
-
-    plt.title('Objeto em 3D')
-    plt.show()
 
 if __name__ == "__main__":
     print("Este arquivo contém operações que podem ser utilizadas sobre a estrutura WingedEdge")
