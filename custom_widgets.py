@@ -19,7 +19,7 @@ class CustomPopUp(ctk.CTkToplevel):
 class ConsultationWindow(ctk.CTkToplevel):
     def __init__(self, master, title, query_function):
         super().__init__(master)
-        self.geometry("400x200")
+        self.geometry("600x200")
         self.title(title)
 
         self.label = ctk.CTkLabel(
@@ -31,7 +31,7 @@ class ConsultationWindow(ctk.CTkToplevel):
 
         self.button = ctk.CTkButton(
             self, text="Consultar", command=query_function)
-        self.button.pack(padx=20, pady=10)
+        self.button.pack(padx=20, pady=15)
 
         self.result_label = ctk.CTkLabel(self, text="")
         self.result_label.pack(padx=20, pady=10)

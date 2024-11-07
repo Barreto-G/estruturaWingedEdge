@@ -44,7 +44,6 @@ class App(ctk.CTk):
         )
         btn_load.pack(expand=True)
 
-
     def setup_main_ui(self):
         '''Configura a interface completa após o carregamento do arquivo.'''
 
@@ -55,22 +54,23 @@ class App(ctk.CTk):
         self.main_frame = ctk.CTkFrame(self)
         self.main_frame.pack(side=tk.LEFT, fill=tk.Y, expand=True)
 
-        button_container = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        button_container = ctk.CTkFrame(
+            self.main_frame, fg_color="transparent")
         button_container.pack(expand=True)
 
         btn_consultar_aresta = ctk.CTkButton(
-            button_container, text="Consultar Arestas",
-            command=lambda: self.open_consultation_window("Consultar Arestas", self.consult_edge))
+            button_container, text="Consultar Faces",
+            command=lambda: self.open_consultation_window("Consultar as faces que compartilham um determinada aresta", self.consult_faces_sharing_edge))
         btn_consultar_aresta.pack(pady=(20, 10), padx=10)
 
         btn_consultar_vertice = ctk.CTkButton(
-            button_container, text="Consultar Vértices",
-            command=lambda: self.open_consultation_window("Consultar Vértices", self.consult_vertice))
+            button_container, text="Consultar Arestas",
+            command=lambda: self.open_consultation_window("Consultar as arestas que compartilham um determinado vértice", self.consult_edges_sharing_vertex))
         btn_consultar_vertice.pack(pady=10, padx=10)
 
         btn_consultar_face = ctk.CTkButton(
-            button_container, text="Consultar Faces",
-            command=lambda: self.open_consultation_window("Consultar Faces", self.consult_face))
+            button_container, text="Consultar Vértices",
+            command=lambda: self.open_consultation_window("Consultar os vértices que compartilham uma determinada face", self.consult_vertices_sharing_face))
         btn_consultar_face.pack(pady=10, padx=10)
 
         btn_load = ctk.CTkButton(
@@ -106,7 +106,7 @@ class App(ctk.CTk):
         else:
             self.consultation_window.focus()
 
-    def consult_edge(self):
+    def consult_faces_sharing_edge(self):
         ''' Consulta as faces que compartilham uma aresta. '''
         if self.mesh is None:
             CustomPopUp(self, title="Aviso",
@@ -129,7 +129,7 @@ class App(ctk.CTk):
             self.consultation_window.display_result(
                 "ID inválido! Por favor, digite um número.")
 
-    def consult_vertice(self):
+    def consult_edges_sharing_vertex(self):
         ''' Consulta as arestas que compartilham um vértice. '''
         if self.mesh is None:
             CustomPopUp(self, title="Aviso",
@@ -151,7 +151,7 @@ class App(ctk.CTk):
             self.consultation_window.display_result(
                 "ID inválido! Por favor, digite um número.")
 
-    def consult_face(self):
+    def consult_vertices_sharing_face(self):
         ''' Consulta os vértices que compartilham uma face. '''
         if self.mesh is None:
             CustomPopUp(self, title="Aviso",
@@ -180,7 +180,7 @@ class App(ctk.CTk):
 
             # Plotar o objeto 3D
             op.plot_3d_object(
-                self.mesh, ax, 
+                self.mesh, ax,
                 colors=['lightblue', 'skyblue', 'dodgerblue', 'royalblue'])
 
             # Limpar canvas antigo se existir
