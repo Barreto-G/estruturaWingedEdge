@@ -49,7 +49,23 @@ if __name__ == '__main__':
     try:
         filename = input("Digite o nome do arquivo: ")
         objeto = op.read_obj(filename)
-        main_console(objeto)
+        while True:
+            print("\nEscolha uma das opções:")
+            print("1. Fazer consultas")
+            print("2. Imprimir informacoes do objeto")
+            choice = input("Digite o número da opção desejada: ")
+
+            if choice == '1':
+                main_console(objeto)
+            elif choice == '2':
+                vertices_info = list(objeto.vertices.values())
+                edges_info = list(objeto.edges.values())
+                faces_info = list(objeto.faces.values())
+                print(vertices_info)
+                print(edges_info)
+                print(faces_info)
+
+
     except FileNotFoundError:
         print("Arquivo nao encontrado, tente novamente")
     except Exception as error:
