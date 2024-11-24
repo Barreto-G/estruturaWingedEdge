@@ -1,8 +1,7 @@
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import matplotlib.pyplot as plt
-import random
 import numpy as np
-
+import math
 from wingedEdge import WingedEdge
 
 
@@ -129,118 +128,167 @@ def plot_3d_object(winged_edge: WingedEdge, ax: plt.Axes, colors: list):
     ax.set_zlabel('Z')
 
 
-def transformation_matrix_2D():
-    """Retorna a matriz transformacao de um objeto 2D para a sequencia de operacoes definida durante a execucao"""
-    operations = [] # Salva as operacoes no formato de pilha
+
+
+def transformation_matrix_3d():
+    """Retorna a matriz transformacao para um objeto 3D de acordo com as operacoes escolhidas"""
+    # Pilha de transformações
+    stack = []
+    print("Escolha as transformações 3D para o objeto:")
 
     while True:
-        print("\nInsira a transformacao que deseja aplicar ou digite 0 para aplicar as ja inseridas:")
-        print("1. Translacao")
+        print("\nTransformações disponíveis:")
+        print("1. Translação")
         print("2. Escala")
-        print("3. Reflexao")
-        print("4. Cisalhamento")
-        print("5. Rotacao")
-        print("0. Aplicar tudo")
+        print("3. Rotação em torno de X")
+        print("4. Rotação em torno de Y")
+        print("5. Rotação em torno de Z")
+        print("6. Reflexão")
+        print("7. Cisalhamento")
+        print("8. Finalizar escolhas")
+        choice = input("Digite o número da transformação desejada: ")
 
-        choice = input("Digite o número da opção desejada: ")
+        if choice == "1":  # Translação
+            dx = float(input("Digite a translação em X: "))
+            dy = float(input("Digite a translação em Y: "))
+            dz = float(input("Digite a translação em Z: "))
+            stack.append(('translation', dx, dy, dz))
 
-        if choice == '1':  # Translação
-            dx = float(input("Digite o deslocamento em x: "))
-            dy = float(input("Digite o deslocamento em y: "))
-            operations.append(('translation', dx, dy))
+        elif choice == "2":  # Escala
+            sx = float(input("Digite a escala em X: "))
+            sy = float(input("Digite a escala em Y: "))
+            sz = float(input("Digite a escala em Z: "))
+            stack.append(('scale', sx, sy, sz))
 
-        elif choice == '2':  # Escala
-            sx = float(input("Digite o fator de escala em x: "))
-            sy = float(input("Digite o fator de escala em y: "))
-            operations.append(('scaling', sx, sy))
+        elif choice == "3":  # Rotação em torno de X
+            angle = float(input("Digite o ângulo de rotação em graus (X): "))
+            stack.append(('rotation_x', angle))
 
-        elif choice == '3':  # Reflexão
-            print("Escolha o eixo de reflexão:")
-            print("1. Reflexão no eixo X")
-            print("2. Reflexão no eixo Y")
-            print("3. Reflexão na origem")
-            reflection_choice = input("Digite o número da reflexão: ")
-            operations.append(('reflection', reflection_choice))
+        elif choice == "4":  # Rotação em torno de Y
+            angle = float(input("Digite o ângulo de rotação em graus (Y): "))
+            stack.append(('rotation_y', angle))
 
-        elif choice == '4':  # Cisalhamento
-            shx = float(input("Digite o fator de cisalhamento em x: "))
-            shy = float(input("Digite o fator de cisalhamento em y: "))
-            operations.append(('shear', shx, shy))
+        elif choice == "5":  # Rotação em torno de Z
+            angle = float(input("Digite o ângulo de rotação em graus (Z): "))
+            stack.append(('rotation_z', angle))
 
-        elif choice == '5':  # Rotação
-            angle = float(input("Digite o ângulo de rotação (em graus): "))
-            rotate_about = input("Deseja rotacionar em torno de um ponto específico? (s/n): ")
-            if rotate_about.lower() == 's':
-                x_c = float(input("Digite a coordenada x do ponto: "))
-                y_c = float(input("Digite a coordenada y do ponto: "))
-                # Adiciona as translações para a origem e de volta
-                operations.append(('translation', -x_c, -y_c))
-                operations.append(('rotation', angle))
-                operations.append(('translation', x_c, y_c))
-            else:
-                operations.append(('rotation', angle))
+        elif choice == "6":  # Reflexão
+            print("Escolha o plano de reflexão:")
+            print("1. XY (Z inverte)")
+            print("2. XZ (Y inverte)")
+            print("3. YZ (X inverte)")
+            reflection_choice = input("Digite o número do plano: ")
+            if reflection_choice == "1":
+                stack.append(('reflection', 'xy'))
+            elif reflection_choice == "2":
+                stack.append(('reflection', 'xz'))
+            elif reflection_choice == "3":
+                stack.append(('reflection', 'yz'))
 
-        elif choice == '0':  # Finalizar
+        elif choice == "7":  # Cisalhamento
+            sh_xy = float(input("Digite o fator de cisalhamento no plano XY: "))
+            sh_xz = float(input("Digite o fator de cisalhamento no plano XZ: "))
+            sh_yz = float(input("Digite o fator de cisalhamento no plano YZ: "))
+            stack.append(('shear', sh_xy, sh_xz, sh_yz))
+
+        elif choice == "8":  # Finalizar escolhas
             break
-
         else:
-            print("Opção inválida. Por favor, escolha entre 0 a 5.")
+            print("Opção inválida, tente novamente.")
 
-        # Inicia a matriz como identidade
-    result_matrix = np.identity(3)
+    # Matriz de transformação composta (identidade)
+    transformation_matrix = np.identity(4)
 
-    # Processa as transformações na ordem inversa (último a entrar é o primeiro a ser aplicado)
-    while operations:
-        transformation = operations.pop()
+    # Processar a pilha na ordem inversa
+    while stack:
+        operation = stack.pop()
+        if operation[0] == 'translation':
+            dx, dy, dz = operation[1], operation[2], operation[3]
+            translation_matrix = np.array([
+                [1, 0, 0, dx],
+                [0, 1, 0, dy],
+                [0, 0, 1, dz],
+                [0, 0, 0, 1]
+            ])
+            transformation_matrix = translation_matrix @ transformation_matrix
 
-        if transformation[0] == 'translation':
-            dx, dy = transformation[1], transformation[2]
-            matrix = np.array([[1, 0, dx],
-                               [0, 1, dy],
-                               [0, 0, 1]])
+        elif operation[0] == 'scale':
+            sx, sy, sz = operation[1], operation[2], operation[3]
+            scale_matrix = np.array([
+                [sx, 0, 0, 0],
+                [0, sy, 0, 0],
+                [0, 0, sz, 0],
+                [0, 0, 0, 1]
+            ])
+            transformation_matrix = scale_matrix @ transformation_matrix
 
-        elif transformation[0] == 'rotation':
-            angle = np.radians(transformation[1])
-            cos_theta = np.cos(angle)
-            sin_theta = np.sin(angle)
-            matrix = np.array([[cos_theta, -sin_theta, 0],
-                               [sin_theta, cos_theta, 0],
-                               [0, 0, 1]])
+        elif operation[0] == 'rotation_x':
+            angle = math.radians(operation[1])
+            rotation_x_matrix = np.array([
+                [1, 0, 0, 0],
+                [0, math.cos(angle), -math.sin(angle), 0],
+                [0, math.sin(angle), math.cos(angle), 0],
+                [0, 0, 0, 1]
+            ])
+            transformation_matrix = rotation_x_matrix @ transformation_matrix
 
-        elif transformation[0] == 'scaling':
-            sx, sy = transformation[1], transformation[2]
-            matrix = np.array([[sx, 0, 0],
-                               [0, sy, 0],
-                               [0, 0, 1]])
+        elif operation[0] == 'rotation_y':
+            angle = math.radians(operation[1])
+            rotation_y_matrix = np.array([
+                [math.cos(angle), 0, math.sin(angle), 0],
+                [0, 1, 0, 0],
+                [-math.sin(angle), 0, math.cos(angle), 0],
+                [0, 0, 0, 1]
+            ])
+            transformation_matrix = rotation_y_matrix @ transformation_matrix
 
-        elif transformation[0] == 'reflection':
-            reflection_choice = transformation[1]
-            if reflection_choice == '1':  # Reflexão no eixo X
-                matrix = np.array([[1, 0, 0],
-                                   [0, -1, 0],
-                                   [0, 0, 1]])
-            elif reflection_choice == '2':  # Reflexão no eixo Y
-                matrix = np.array([[-1, 0, 0],
-                                   [0, 1, 0],
-                                   [0, 0, 1]])
-            elif reflection_choice == '3':  # Reflexão na origem
-                matrix = np.array([[-1, 0, 0],
-                                   [0, -1, 0],
-                                   [0, 0, 1]])
-            else:
-                print("Reflexão inválida! Ignorando...")
-                continue
+        elif operation[0] == 'rotation_z':
+            angle = math.radians(operation[1])
+            rotation_z_matrix = np.array([
+                [math.cos(angle), -math.sin(angle), 0, 0],
+                [math.sin(angle), math.cos(angle), 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ])
+            transformation_matrix = rotation_z_matrix @ transformation_matrix
 
-        elif transformation[0] == 'shear':
-            shx, shy = transformation[1], transformation[2]
-            matrix = np.array([[1, shx, 0],
-                               [shy, 1, 0],
-                               [0, 0, 1]])
+        elif operation[0] == 'reflection':
+            plane = operation[1]
+            if plane == 'xy':
+                reflection_matrix = np.array([
+                    [1, 0, 0, 0],
+                    [0, 1, 0, 0],
+                    [0, 0, -1, 0],
+                    [0, 0, 0, 1]
+                ])
+            elif plane == 'xz':
+                reflection_matrix = np.array([
+                    [1, 0, 0, 0],
+                    [0, -1, 0, 0],
+                    [0, 0, 1, 0],
+                    [0, 0, 0, 1]
+                ])
+            elif plane == 'yz':
+                reflection_matrix = np.array([
+                    [-1, 0, 0, 0],
+                    [0, 1, 0, 0],
+                    [0, 0, 1, 0],
+                    [0, 0, 0, 1]
+                ])
+            transformation_matrix = reflection_matrix @ transformation_matrix
 
-        # Multiplica a matriz resultante pela transformação atual
-        result_matrix = matrix @ result_matrix
+        elif operation[0] == 'shear':
+            sh_xy, sh_xz, sh_yz = operation[1], operation[2], operation[3]
+            shear_matrix = np.array([
+                [1, sh_xy, sh_xz, 0],
+                [0, 1, sh_yz, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ])
+            transformation_matrix = shear_matrix @ transformation_matrix
 
-    return result_matrix
+    return transformation_matrix
+
 
 if __name__ == "__main__":
     print("Este arquivo contém operações que podem ser utilizadas sobre a estrutura WingedEdge")
