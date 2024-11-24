@@ -1,5 +1,50 @@
 import numpy as np
 
+
+def get_translation_matrix(dx, dy):
+    return np.array([[1, 0, dx],
+                     [0, 1, dy],
+                     [0, 0, 1]])
+    
+def get_rotation_matrix(angle):
+    cos_theta = np.cos(angle)
+    sin_theta = np.sin(angle)
+    return np.array([[cos_theta, -sin_theta, 0],
+                     [sin_theta, cos_theta, 0],
+                     [0, 0, 1]])
+    
+def get_scaling_matrix(sx, sy):
+    return np.array([[sx, 0, 0],
+                     [0, sy, 0],
+                     [0, 0, 1]])
+    
+def get_reflection_matrix(axis):
+    '''
+    axis: '1' -> Reflexão no eixo X
+          '2' -> Reflexão no eixo Y
+          '3' -> Reflexão na origem
+    '''
+    if axis == '1':
+        return np.array([[1, 0, 0],
+                         [0, -1, 0],
+                         [0, 0, 1]])
+    elif axis == '2':
+        return np.array([[-1, 0, 0],
+                         [0, 1, 0],
+                         [0, 0, 1]])
+    elif axis == '3':
+        return np.array([[-1, 0, 0],
+                         [0, -1, 0],
+                         [0, 0, 1]])
+    else:
+        return None
+    
+
+def get_shear_matrix(shx, shy):
+    return np.array([[1, shx, 0],
+                     [shy, 1, 0],
+                     [0, 0, 1]])
+
 def transformation_matrix_2d():
     """Retorna a matriz transformacao de um objeto 2D para a sequencia de operacoes definida durante a execucao"""
     operations = [] # Salva as operacoes no formato de pilha
@@ -42,9 +87,11 @@ def transformation_matrix_2d():
         elif choice == '5':  # Rotação - Da a opcao de escolher o ponto sobre o qual a rotacao ocorrera ou apenas rotacionar em relacao a origem
             angle = float(input("Digite o ângulo de rotação (em graus): "))
             rotate_about = input("Deseja rotacionar em torno de um ponto específico? (s/n): ")
+            
             if rotate_about.lower() == 's':
                 x_c = float(input("Digite a coordenada x do ponto: "))
                 y_c = float(input("Digite a coordenada y do ponto: "))
+                
                 # Adiciona as translações para a origem e de volta
                 operations.append(('translation', -x_c, -y_c))
                 operations.append(('rotation', angle))
@@ -66,49 +113,24 @@ def transformation_matrix_2d():
         transformation = operations.pop()
 
         if transformation[0] == 'translation':
-            dx, dy = transformation[1], transformation[2]
-            matrix = np.array([[1, 0, dx],
-                               [0, 1, dy],
-                               [0, 0, 1]])
+            matrix = get_translation_matrix(dx=transformation[1], dy=transformation[2])
 
         elif transformation[0] == 'rotation':
-            angle = np.radians(transformation[1])
-            cos_theta = np.cos(angle)
-            sin_theta = np.sin(angle)
-            matrix = np.array([[cos_theta, -sin_theta, 0],
-                               [sin_theta, cos_theta, 0],
-                               [0, 0, 1]])
+            matrix = get_rotation_matrix(angle=np.radians(transformation[1]))
 
         elif transformation[0] == 'scaling':
-            sx, sy = transformation[1], transformation[2]
-            matrix = np.array([[sx, 0, 0],
-                               [0, sy, 0],
-                               [0, 0, 1]])
+            matrix = get_scaling_matrix(sx=transformation[1], sy=transformation[2])
 
         elif transformation[0] == 'reflection':
-            reflection_choice = transformation[1]
-            if reflection_choice == '1':  # Reflexão no eixo X
-                matrix = np.array([[1, 0, 0],
-                                   [0, -1, 0],
-                                   [0, 0, 1]])
-            elif reflection_choice == '2':  # Reflexão no eixo Y
-                matrix = np.array([[-1, 0, 0],
-                                   [0, 1, 0],
-                                   [0, 0, 1]])
-            elif reflection_choice == '3':  # Reflexão na origem
-                matrix = np.array([[-1, 0, 0],
-                                   [0, -1, 0],
-                                   [0, 0, 1]])
-            else:
+            matrix = get_reflection_matrix(axis=transformation[1])
+            
+            if matrix is None:
                 print("Reflexão inválida! Ignorando...")
                 continue
 
         elif transformation[0] == 'shear':
-            shx, shy = transformation[1], transformation[2]
-            matrix = np.array([[1, shx, 0],
-                               [shy, 1, 0],
-                               [0, 0, 1]])
-
+            matrix = get_shear_matrix(shx=transformation[1], shy=transformation[2])
+            
         # Multiplica a matriz resultante pela transformação atual
         result_matrix = matrix @ result_matrix
 
