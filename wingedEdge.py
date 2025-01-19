@@ -55,6 +55,7 @@ class WingedEdge:
         self.vertices = {}
         self.edges = {}
         self.faces = {}
+        self.centroide = []
 
     def add_vertex(self, id: int, position):
         vertex = Vertex(id, position)
@@ -111,6 +112,17 @@ class WingedEdge:
                     # Utilizar %len(edges) garante que os indices se ajustem de forma rotativa
                     # Assim, se idx+1 extrapolar os ids possiveis, o indice calculado volta pro inicio, como se fosse uma lista circular
                     # Genialidade fornecida por: ChatGpt da Silva
+
+    def calcular_centroide(self):
+        # Calcula o centroide
+        num_vertices = len(self.vertices)
+        soma_x = sum(vertex.position[0] for vertex in self.vertices.values())
+        soma_y = sum(vertex.position[1] for vertex in self.vertices.values())
+        soma_z = sum(vertex.position[2] for vertex in self.vertices.values())
+        centroide_x = soma_x / num_vertices
+        centroide_y = soma_y / num_vertices
+        centroide_z = soma_z / num_vertices
+        self.centroide = [centroide_x, centroide_y, centroide_z]
 
     def __repr__(self):
         return f"WingedEdgeMesh(vertices={list(self.vertices.keys())}, edges={list(self.edges.keys())}, faces={list(self.faces.keys())})"

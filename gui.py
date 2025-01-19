@@ -4,7 +4,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 import operations as op
-from custom_widgets import CustomPopUp, ConsultationWindow
+from custom_widgets import CustomPopUp, ConsultationWindow, TransformationWindow
 
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("blue")
@@ -13,16 +13,17 @@ ctk.set_default_color_theme("blue")
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.title("Visualizador Windged-Edge")
+        self.title("Sistema Gráfico Iterativo")
         self.geometry("800x600")
         self.mesh = None
         self.figure = None
         self.canvas = None
         self.consultation_window = None
+        self.transformation_window = None
         self.setup_initial_ui()
 
     def setup_initial_ui(self):
-        '''Configura a interface inicial com o botão para carregar o arquivo OBJ.'''
+        """Configura a interface inicial com o botão para carregar o arquivo OBJ."""
         self.geometry("500x200")  # Aumenta o tamanho da janela inicial
 
         # Frame para o carregamento inicial
@@ -45,7 +46,7 @@ class App(ctk.CTk):
         btn_load.pack(expand=True)
 
     def setup_main_ui(self):
-        '''Configura a interface completa após o carregamento do arquivo.'''
+        """Configura a interface completa após o carregamento do arquivo."""
 
         self.geometry("800x600")  # Define o tamanho da janela completa
 
@@ -77,6 +78,11 @@ class App(ctk.CTk):
             button_container, text="Carregar um novo arquivo OBJ", command=self.load_file)
         btn_load.pack(pady=10, padx=10)
 
+        btn_transform = ctk.CTkButton(
+            button_container, text="Aplicar uma transformação ao OBJ",
+            command=lambda: self.open_transformation_window())
+        btn_transform.pack(pady=10, padx=10)
+
         self.plot_frame = ctk.CTkFrame(self)
         self.plot_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
@@ -88,7 +94,7 @@ class App(ctk.CTk):
         if file_path:
             try:
 
-                self.mesh = op.read_obj(file_path)
+                self.mesh = op.read_3d_obj(file_path)
                 self.setup_main_ui()
 
             except FileNotFoundError:
@@ -105,6 +111,12 @@ class App(ctk.CTk):
                 self, title, query_function)
         else:
             self.consultation_window.focus()
+
+    def open_transformation_window(self):
+        if self.transformation_window is None or not self.transformation_window.winfo_exists():
+            self.transformation_window = TransformationWindow(self, self.mesh)
+        else:
+            self.transformation_window.focus()
 
     def consult_faces_sharing_edge(self):
         ''' Consulta as faces que compartilham uma aresta. '''
