@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from wingedEdge import Scene
 
 def get_translation_matrix(dx,dy,dz):
     return np.array([
@@ -76,6 +77,26 @@ def get_shear_matrix(xy=0, xz=0, yz=0):
         [0, 0, 0, 1]
     ])
 
+def apply_transformation(mesh_or_scene, matrix, object_id=None):
+    """Aplica uma matriz de transformação a um objeto ou cena"""
+    if isinstance(mesh_or_scene, Scene):
+        if object_id is not None:
+            obj = mesh_or_scene.get_object(object_id)
+            if obj is None:
+                return
+            apply_transformation(obj, matrix)
+        else:
+            for obj in mesh_or_scene.objects.values():
+                apply_transformation(obj, matrix)
+    else:
+        # Aplica a transformação em cada vértice do objeto
+        for vertex in mesh_or_scene.vertices.values():
+            point = np.array([*vertex.position, 1])
+            transformed_point = matrix @ point
+            vertex.position = (transformed_point[0], transformed_point[1], transformed_point[2])
+        
+        # Recalcula o centroide após a transformação
+        mesh_or_scene.calculate_centroid()
 
 def transformation_matrix_3d():
     """Retorna a matriz transformacao para um objeto 3D de acordo com as operacoes escolhidas"""

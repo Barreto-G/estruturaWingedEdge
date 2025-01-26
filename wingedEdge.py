@@ -45,17 +45,13 @@ class Face:
         return f"Face {self.id}"
 
 
-# A estrutura WingedEdge mantem um dicionario para cada elemento do objeto a ser representado(de forma a evitar duplicados),
-# sendo eles vertices, arestas e faces. A estrutura foi pensada de forma que adicionam-se primeiro os vertices do objeto,
-# entao as arestas e por fim as faces. Com todas as informações estabelecidas, deve-se executar a função LinkEdges para que,
-# a partir da informação das faces, sejam salvas em cada aresta as referencias de arestas vizinhas
 class WingedEdge:
     def __init__(self):
         # Armazena em estrutura de dicionário para facilitar o acesso e operacoes posteriores
         self.vertices = {}
         self.edges = {}
         self.faces = {}
-        self.centroide = []
+        self.centroid = []
 
     def add_vertex(self, id: int, position):
         vertex = Vertex(id, position)
@@ -92,7 +88,6 @@ class WingedEdge:
             else:
                 raise ValueError(f"Aresta {edge_id} já pertence a duas faces e não pode ser compartilhada por mais.")
 
-
     def link_edges(self):
         """Estabelece as conexões entre as arestas adjacentes no objeto"""
 
@@ -113,19 +108,47 @@ class WingedEdge:
                     # Assim, se idx+1 extrapolar os ids possiveis, o indice calculado volta pro inicio, como se fosse uma lista circular
                     # Genialidade fornecida por: ChatGpt da Silva
 
-    def calcular_centroide(self):
+    def calculate_centroid(self):
         # Calcula o centroide
         num_vertices = len(self.vertices)
-        soma_x = sum(vertex.position[0] for vertex in self.vertices.values())
-        soma_y = sum(vertex.position[1] for vertex in self.vertices.values())
-        soma_z = sum(vertex.position[2] for vertex in self.vertices.values())
-        centroide_x = soma_x / num_vertices
-        centroide_y = soma_y / num_vertices
-        centroide_z = soma_z / num_vertices
-        self.centroide = [centroide_x, centroide_y, centroide_z]
+        sum_x = sum(vertex.position[0] for vertex in self.vertices.values())
+        sum_y = sum(vertex.position[1] for vertex in self.vertices.values())
+        sum_z = sum(vertex.position[2] for vertex in self.vertices.values())
+        centroid_x = sum_x / num_vertices
+        centroid_y = sum_y / num_vertices
+        centroid_z = sum_z / num_vertices
+        self.centroid = [centroid_x, centroid_y, centroid_z]
+
+    def window_to_viewport(self, x, y, window_width, window_height, viewport_width, viewport_height):
+        # Converte coordenadas do mundo (SRU) para coordenadas da viewport (SRD)
+        viewport_x = (x / window_width) * viewport_width
+        viewport_y = (y / window_height) * viewport_height
+        return viewport_x, viewport_y
+
+    def viewport_to_window(self, x, y, viewport_width, viewport_height, window_width, window_height):
+        # Converte coordenadas da viewport (SRD) para coordenadas do mundo (SRU)
+        window_x = (x / viewport_width) * window_width
+        window_y = (y / viewport_height) * window_height
+        return window_x, window_y
 
     def __repr__(self):
         return f"WingedEdgeMesh(vertices={list(self.vertices.keys())}, edges={list(self.edges.keys())}, faces={list(self.faces.keys())})"
 
-if __name__ == "__main__":
-    print("Este arquivo contém a estrutura de dados Winged Edge e as classes para implementá-la")
+
+class Scene:
+    def __init__(self):
+        # Dicionario para armazenar objetos WingedEdge por ID
+        self.objects = {}
+
+    def add_object(self, object_id: int, winged_edge: WingedEdge):
+        # Adiciona um novo objeto WingedEdge à cena
+        self.objects[object_id] = winged_edge
+
+    def remove_object(self, object_id: int):
+        # Remove um objeto da cena pelo seu ID
+        if object_id in self.objects:
+            del self.objects[object_id]
+
+    def get_object(self, object_id: int) -> WingedEdge:
+        # Retorna um objeto da cena pelo seu ID
+        return self.objects.get(object_id)
