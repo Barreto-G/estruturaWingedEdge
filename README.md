@@ -19,6 +19,7 @@ This project is an interactive 3D graphics system that allows you to load, manip
 
     ```bash
     venv\Scripts\activate
+    ```
 
    - Linux:
 
