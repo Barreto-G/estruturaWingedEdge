@@ -38,6 +38,4 @@ This project is an interactive 3D graphics system that allows you to load, manip
 
 ## Usage
 
-    ```bash
     python main.py
-    ```
