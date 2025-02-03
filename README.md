@@ -7,13 +7,16 @@ This project is an interactive 3D graphics system that allows you to load, manip
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/your-repo.git
-   cd your-repo
+   git clone https://github.com/hadson0/interactive-graphic-system/tree/main
+   cd interactive-graphic-system
+   ```
 
 2. **Create a virtual environment:**
 
     ```bash
     python -m venv venv
+    ```
+    
 3. **Activate the virtual environment:**
    - Windows:
 
@@ -25,14 +28,16 @@ This project is an interactive 3D graphics system that allows you to load, manip
 
     ```bash
     source venv/bin/activate
+    ```
 
 4. **Install the dependencies:**
 
     ```bash
     pip install -r requirements.txt
+    ```
 
 ## Usage
 
-
     ```bash
     python main.py
+    ```
