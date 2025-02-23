@@ -1,8 +1,9 @@
 import tkinter as tk
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
+import tkinter.simpledialog as simpledialog
 
-from core import Scene, read_obj
+from core import Scene, read_obj, create_cube, create_square_pyramid, create_triangular_pyramid
 from graphics import Renderer, CameraController, RenderMode
 from .custom_widgets import CustomOpenGLFrame, TransformControlsFrame, ObjectListFrame
 
@@ -31,18 +32,66 @@ class App(ctk.CTk):
         self.canvas.bind('<Configure>', self.renderer.resize)            
     
     def _create_layout(self):
+        # Frame principal
         main_frame = ctk.CTkFrame(self)
         main_frame.pack(fill="both", expand=True, padx=10, pady=10)
         
-        self.object_list = ObjectListFrame(main_frame, self.scene, self)
-        self.object_list.pack(side=tk.LEFT, fill="y", padx=5, pady=5)
+        # Painel da esquerda: Criar novo objeto e Lista de objetos
+        left_panel = ctk.CTkFrame(main_frame)
+        left_panel.pack(side=tk.LEFT, fill="y", padx=5, pady=5)
         
+        # Painel para criar novo objeto
+        new_obj_frame = ctk.CTkFrame(left_panel, border_width=2, corner_radius=8)
+        new_obj_frame.pack(fill="x", pady=(0, 10))
+        
+        title_label = ctk.CTkLabel(new_obj_frame, text="Criar Novo Objeto", font=("Arial", 16))
+        title_label.pack(pady=5)
+
+        # Seleção do tipo de objeto
+        type_label = ctk.CTkLabel(new_obj_frame, text="Tipo:")
+        type_label.pack(pady=(5, 0))
+        self.obj_type = ctk.CTkComboBox(new_obj_frame, values=["Cubo", "Pirâmide Quadrada", "Pirâmide Triangular"])
+        self.obj_type.set("Cubo")
+        self.obj_type.pack(pady=5)
+
+        # Entradas para coordenadas
+        coord_frame = ctk.CTkFrame(new_obj_frame)
+        coord_frame.pack(pady=5, padx=5)
+        
+        x_label = ctk.CTkLabel(coord_frame, text="X:")
+        x_label.grid(row=0, column=0, padx=2, pady=2)
+        self.entry_x = ctk.CTkEntry(coord_frame, width=60)
+        self.entry_x.insert(0, "0.0")
+        self.entry_x.grid(row=0, column=1, padx=2, pady=2)
+        
+        y_label = ctk.CTkLabel(coord_frame, text="Y:")
+        y_label.grid(row=1, column=0, padx=2, pady=2)
+        self.entry_y = ctk.CTkEntry(coord_frame, width=60)
+        self.entry_y.insert(0, "0.0")
+        self.entry_y.grid(row=1, column=1, padx=2, pady=2)
+        
+        z_label = ctk.CTkLabel(coord_frame, text="Z:")
+        z_label.grid(row=2, column=0, padx=2, pady=2)
+        self.entry_z = ctk.CTkEntry(coord_frame, width=60)
+        self.entry_z.insert(0, "0.0")
+        self.entry_z.grid(row=2, column=1, padx=2, pady=2)
+        
+        # Botão para criar o objeto
+        create_btn = ctk.CTkButton(new_obj_frame, text="Criar Objeto", command=self.add_new_object)
+        create_btn.pack(pady=10, padx=5)
+        
+        # Lista de objetos
+        self.object_list = ObjectListFrame(left_panel, self.scene, self)
+        self.object_list.pack(fill="both", expand=True, padx=5, pady=5)
+        
+        # Canvas e controles de transformação
         self.canvas = CustomOpenGLFrame(main_frame, width=800, height=600)
         self.canvas.pack(side="left", fill="both", expand=True, padx=5, pady=5)
         
         self.transform_controls = TransformControlsFrame(main_frame, self)
         self.transform_controls.pack(side="right", fill="y", padx=5, pady=5)
         
+        # Menubar
         menubar = tk.Menu(self)
         self.config(menu=menubar)
 
@@ -92,7 +141,7 @@ class App(ctk.CTk):
                 if new_object and new_object.objects:
                     obj = list(new_object.objects.values())[0]
                     obj_id = self.scene.add_object(obj)
-                    obj_name = filename.split('/')[-1].split('.')[0] # Deixa apenas o nome do arquivo sem o .obj
+                    obj_name = filename.split('/')[-1].split('.')[0]  # Nome do arquivo sem a extensão
                     self.object_names[obj_id] = obj_name
                     
                     self.object_list.update_object_list(self.object_names)
@@ -187,3 +236,45 @@ class App(ctk.CTk):
         obj = self.scene.selected_object
         obj.clear_transformations()
         self.render_scene()
+
+    def create_new_object(self, obj_type, cx=0.0, cy=0.0, cz=0.0):
+        if obj_type == 'Cubo':
+            size = simpledialog.askfloat("Entrada", "Tamanho do Cubo:")
+            new_obj = create_cube((cx, cy, cz), size)
+        elif obj_type == 'Pirâmide Quadrada':
+            base_size = simpledialog.askfloat("Entrada", "Tamanho da base:")
+            height = simpledialog.askfloat("Entrada", "Altura:")
+            new_obj = create_square_pyramid((cx, cy, cz), base_size, height)
+        elif obj_type == 'Pirâmide Triangular':
+            base_size = simpledialog.askfloat("Entrada", "Tamanho da base:")
+            height = simpledialog.askfloat("Entrada", "Altura:")
+            new_obj = create_triangular_pyramid((cx, cy, cz), base_size, height)
+        else:
+            return
+        obj_id = self.scene.add_object(new_obj)
+        self.object_names[obj_id] = obj_type
+        self.object_list.update_object_list(self.object_names)
+        self.render_scene()
+
+    def add_new_object(self):
+        obj_type = self.obj_type.get()
+
+        try:
+            cx = float(self.entry_x.get())
+        except ValueError:
+            messagebox.showerror("Erro", "Valor inválido para X. Utilize um número.")
+            return
+
+        try:
+            cy = float(self.entry_y.get())
+        except ValueError:
+            messagebox.showerror("Erro", "Valor inválido para Y. Utilize um número.")
+            return
+
+        try:
+            cz = float(self.entry_z.get())
+        except ValueError:
+            messagebox.showerror("Erro", "Valor inválido para Z. Utilize um número.")
+            return
+
+        self.create_new_object(obj_type, cx, cy, cz)

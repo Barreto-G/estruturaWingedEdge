@@ -33,16 +33,37 @@ class Renderer:
         """Renderiza uma face."""
         if self.render_mode in [RenderMode.SOLID, RenderMode.SOLID_WIREFRAME]:
             gl.glColor3f(0.0, 0.9, 1.0)  # Ciano
-            gl.glBegin(gl.GL_TRIANGLES)
             
-            for vertex in face_vertices:
-                pos = obj.get_transformed_vertex(vertex.id)
+            # Triangulação da face
+            if len(face_vertices) > 3:
+                # Para faces com 4 vértices (quadriláteros)
+                gl.glBegin(gl.GL_TRIANGLES)
+                # Primeiro triângulo
+                pos = obj.get_transformed_vertex(face_vertices[0].id)
                 gl.glVertex3f(*pos)
-            gl.glEnd()
+                pos = obj.get_transformed_vertex(face_vertices[1].id)
+                gl.glVertex3f(*pos)
+                pos = obj.get_transformed_vertex(face_vertices[2].id)
+                gl.glVertex3f(*pos)
+                # Segundo triângulo
+                pos = obj.get_transformed_vertex(face_vertices[0].id)
+                gl.glVertex3f(*pos)
+                pos = obj.get_transformed_vertex(face_vertices[2].id)
+                gl.glVertex3f(*pos)
+                pos = obj.get_transformed_vertex(face_vertices[3].id)
+                gl.glVertex3f(*pos)
+                gl.glEnd()
+            else:
+                # Para faces triangulares
+                gl.glBegin(gl.GL_TRIANGLES)
+                for vertex in face_vertices:
+                    pos = obj.get_transformed_vertex(vertex.id)
+                    gl.glVertex3f(*pos)
+                gl.glEnd()
         
         if self.render_mode in [RenderMode.WIREFRAME, RenderMode.SOLID_WIREFRAME]:
             # Render wireframe
-            gl.glColor3f(0.0, 0.0, 0.0)  # Dark gray for wireframe
+            gl.glColor3f(0.0, 0.0, 0.0)  # Preto para o wireframe
             gl.glBegin(gl.GL_LINE_LOOP)
             for vertex in face_vertices:
                 pos = obj.get_transformed_vertex(vertex.id)
@@ -52,7 +73,9 @@ class Renderer:
     def render(self, scene):
         """Renderiza a cena inteira."""        
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-        
+        gl.glEnable(gl.GL_CULL_FACE)
+        gl.glCullFace(gl.GL_BACK)
+        gl.glFrontFace(gl.GL_CCW)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
         aspect = self.canvas.winfo_width() / self.canvas.winfo_height()
